@@ -1,0 +1,20 @@
+# OmniMail CMS — system configuration (example)
+# Copy to system.yaml and set values for your environment:
+#   cp config/system.example.yaml config/system.yaml
+
+omnimail:
+  system:
+    # Git author identity for automated commits (maps to Git user.name / user.email).
+    git:
+      author:
+        name: "OmniMail CMS"
+        email: "omnimail-cms@your-org.example"
+      # Optional; defaults to author when omitted
+      committer:
+        name: "OmniMail CMS"
+        email: "omnimail-cms@your-org.example"
+      repository:
+        defaultBranch: main
+        templatesPath: templates
+
+    environment: dev
