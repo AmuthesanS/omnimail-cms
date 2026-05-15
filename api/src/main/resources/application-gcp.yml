@@ -1,4 +1,5 @@
 # Cloud Run: SPRING_PROFILES_ACTIVE=gcp
+# Deploy guide: docs/DEPLOY-GCP.md
 omnimail:
   storage:
     type: gcs

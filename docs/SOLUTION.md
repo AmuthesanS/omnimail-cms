@@ -515,6 +515,14 @@ Env vars override YAML when both are set (12-factor).
 
 ## 16. References
 
+### Project guides
+
+- [Deploy to GCP](DEPLOY-GCP.md)
+- [API reference](API.md)
+- [Troubleshooting](TROUBLESHOOTING.md)
+
+### External
+
 - [Google Cloud Storage](https://cloud.google.com/storage/docs)
 - [Cloud Run](https://cloud.google.com/run/docs)
 - [Identity Platform](https://cloud.google.com/identity-platform/docs)

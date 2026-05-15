@@ -1,0 +1,4 @@
+# Dev: header-based tenant (no OAuth). See README.
+logging:
+  level:
+    io.omnimail.cms: INFO
