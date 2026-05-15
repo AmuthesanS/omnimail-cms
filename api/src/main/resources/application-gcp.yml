@@ -1,0 +1,8 @@
+# Cloud Run: SPRING_PROFILES_ACTIVE=gcp
+omnimail:
+  storage:
+    type: gcs
+    cdn-base-url: ${CDN_BASE_URL:https://storage.googleapis.com}
+  gcs:
+    project-id: ${GCP_PROJECT_ID}
+    bucket: ${GCS_BUCKET}
