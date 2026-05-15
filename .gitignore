@@ -1,2 +1,6 @@
 # Local overrides (keep system.example.yaml in Git)
 config/system.local.yaml
+
+# Local blob storage (lightweight dev)
+data/
+api/data/

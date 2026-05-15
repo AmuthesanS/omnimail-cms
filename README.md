@@ -1,111 +1,94 @@
 # OmniMail CMS
 
-A **Google Cloud–based** content management system for email marketing campaigns: versioned templates, review workflows, asset storage on **Cloud Storage (GCS)**, and on-demand email delivery.
+Email campaign template CMS (GCP-ready, **lightweight local dev**).
 
-This repository is in the **planning / documentation** phase. Implementation will follow the architecture described in [docs/SOLUTION.md](docs/SOLUTION.md).
-
----
-
-## Goals
-
-- Store and version **email templates** (MJML/HTML) and **campaign metadata**
-- Support **authoring** (UI drafts + Git as source of truth for production)
-- Enforce **authentication**, **RBAC**, and **approval workflows** before publish
-- Serve large assets via **GCS + Cloud CDN**
-- **Send** rendered email content on request (test and production paths)
-- Run on **Google Cloud only** (no AWS services or SDKs)
-- Remain **portable** to other clouds later via ports-and-adapters (see solution doc)
+Architecture: [docs/SOLUTION.md](docs/SOLUTION.md)
 
 ---
 
-## Architecture (summary)
+## Lightweight local setup
 
-| Layer | Technology |
-|-------|------------|
-| UI | React (Firebase Hosting or GCS + Cloud CDN) |
-| API | Java 21, Spring Boot 3 on **Cloud Run** |
-| Documents | **MongoDB Atlas** (GCP region) |
-| Blobs | **Cloud Storage** (`google-cloud-storage`) |
-| Cache (optional) | **Memorystore for Redis** |
-| Auth | **Identity Platform** (OIDC / JWT) |
-| CI/CD | **Cloud Build** |
-| Email delivery | **SendGrid** or **Mailgun** (HTTP API; secrets in Secret Manager) |
+| Before (heavy) | Now (light) |
+|----------------|-------------|
+| Parent + child Maven POM | **Single** `api/pom.xml` |
+| Spring Security + OAuth2 | Simple **HTTP headers** for tenant/roles |
+| fake-gcs-server + init + web containers | **MongoDB + API** only in Docker |
+| 5 Docker services | **2 Docker services** |
+| GCS emulator required locally | **Local disk** storage (`./data/blobs`) |
 
-**Data flow:** Git (source) → Cloud Build (validate, render) → GCS + MongoDB (immutable published versions) → Send service resolves version and dispatches via ESP.
+### Option A — one script (Mongo in Docker, API on host)
 
-Full design: **[docs/SOLUTION.md](docs/SOLUTION.md)**
+```bash
+chmod +x scripts/dev.sh
+./scripts/dev.sh
+```
+
+Needs **JDK 17+** and Maven.
+
+### Option B — Docker only
+
+```bash
+docker compose up --build
+```
+
+API: http://localhost:8080
+
+### Option C — UI (optional, separate terminal)
+
+```bash
+cd web && npm install && npm run dev
+```
+
+UI: http://localhost:5173 (proxies `/api` to the API)
 
 ---
 
-## Repository layout (planned)
+## Try the API
+
+```bash
+curl -s -X POST http://localhost:8080/api/v1/templates \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Welcome","mjmlSource":"<html><body>Hi {{name}}</body></html>","variablesSchema":{}}'
+```
+
+Dev headers (optional): `X-Tenant-Id`, `X-User-Id`, `X-User-Roles` (defaults grant all roles).
+
+---
+
+## Production (Google Cloud)
+
+Set profile **`gcp`** and storage type **`gcs`**:
+
+```bash
+export SPRING_PROFILES_ACTIVE=gcp
+export OMNIMAIL_STORAGE_TYPE=gcs   # maps to omnimail.storage.type
+export GCP_PROJECT_ID=your-project
+export GCS_BUCKET=your-bucket
+export MONGODB_URI=mongodb+srv://...
+```
+
+Cloud Run: build from `api/Dockerfile`, attach service account for GCS.
+
+---
+
+## Project layout
 
 ```text
-omnimail-cms/
-  config/
-    system.yaml          # System settings (git author, paths)
-    system.example.yaml  # Template for new environments
-  docs/
-    SOLUTION.md          # Architecture & decisions (this review set)
-  api/                   # Spring Boot CMS + send API (future)
-  web/                   # React UI (future)
-  infra/
-    cloudbuild/          # Publish pipelines (future)
-  docker-compose.yml     # Local: Mongo, fake-gcs-server (future)
+api/              # Spring Boot (single module)
+web/              # React UI (optional)
+config/           # system.yaml (Git author, etc.)
+scripts/dev.sh    # quick local run
+docker-compose.yml
 ```
 
 ---
 
-## Key decisions
+## Branch
 
-| Topic | Choice |
-|-------|--------|
-| Authoring | UI for drafts; Git + Cloud Build for production publish |
-| Database | MongoDB Atlas on GCP (not Firestore) — portability |
-| Runtime | Spring Boot on Cloud Run |
-| Object storage | GCS native SDK |
-| Multi-tenant | `tenantId` on all documents from day one |
-| Cloud scope | GCP only; ESP is external SaaS (non-AWS) |
-
----
-
-## Configuration
-
-System settings live under [`config/`](config/). Set **Git author** name and email (used for automated commits from the CMS and publish pipeline):
-
-```yaml
-omnimail:
-  system:
-    git:
-      author:
-        name: "Your Name or Service"
-        email: "you@your-org.example"
-```
-
-Copy [`config/system.example.yaml`](config/system.example.yaml) to `config/system.yaml` if needed. See [docs/SOLUTION.md §17](docs/SOLUTION.md#17-system-configuration) for all keys.
-
----
-
-## Documentation
-
-| Document | Description |
-|----------|-------------|
-| [docs/SOLUTION.md](docs/SOLUTION.md) | Solution architecture, data model, APIs, workflow, GCP mapping, portability |
-
----
-
-## Status
-
-| Phase | Scope | Status |
-|-------|--------|--------|
-| 0 | Docs + repo structure | In progress |
-| 1 | API skeleton, GCS/Mongo adapters, draft CRUD | Planned |
-| 2 | Auth, workflow, versioning | Planned |
-| 3 | Cloud Build publish from Git | Planned |
-| 4 | Send API + ESP integration | Planned |
-| 5 | CDN, cache, compliance logging | Planned |
+Application code: **`feature/application`**
 
 ---
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE).
+Apache 2.0 — see [LICENSE](LICENSE).

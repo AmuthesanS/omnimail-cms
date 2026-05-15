@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: omnimail-cms
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/omnimail}
+  config:
+    import: optional:file:../config/system.yaml
+
+server:
+  port: ${PORT:8080}
+
+omnimail:
+  storage:
+    type: local
+    local-path: ${OMNIMAIL_DATA_DIR:./data/blobs}
+    cdn-base-url: ${CDN_BASE_URL:http://localhost:8080}
+  tenant:
+    default-id: ${OMNIMAIL_DEFAULT_TENANT:default}
+  gcs:
+    project-id: ${GCP_PROJECT_ID:}
+    bucket: ${GCS_BUCKET:omnimail-assets}
+  email:
+    provider: logging

@@ -1,0 +1,23 @@
+# Lightweight local stack: MongoDB + API only (no GCS emulator, no web container).
+services:
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/omnimail
+      OMNIMAIL_DATA_DIR: /app/data/blobs
+    volumes:
+      - api_data:/app/data
+    depends_on:
+      - mongodb
+
+volumes:
+  api_data:
