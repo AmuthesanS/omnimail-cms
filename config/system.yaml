@@ -1,0 +1,17 @@
+# OmniMail CMS — system configuration (local / deployment)
+# Do not commit secrets here; use Secret Manager for credentials.
+
+omnimail:
+  system:
+    git:
+      author:
+        name: "OmniMail CMS"
+        email: "omnimail-cms@your-org.example"
+      committer:
+        name: "OmniMail CMS"
+        email: "omnimail-cms@your-org.example"
+      repository:
+        defaultBranch: main
+        templatesPath: templates
+
+    environment: dev
