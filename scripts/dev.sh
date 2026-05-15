@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Local dev entrypoint. Troubleshooting: docs/TROUBLESHOOTING.md
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
